@@ -23,10 +23,12 @@ public class MioConsumer {
         // TODO code application logic here
         Scanner i=new Scanner(System.in);
         
-        System.out.print("inserisci il nome di cui vuoi visualizzare il numero:");
-        String nome=i.next();
-        ws.get(nome);
-        ws.printResult();
+        while(true){
+            System.out.print("inserisci il nome di cui vuoi visualizzare il numero:");
+            String nome=i.next();
+            ws.get(nome);
+            ws.printResult();
+        }
         
         
     }

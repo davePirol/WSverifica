@@ -5,12 +5,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.net.ssl.HttpsURLConnection;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -27,7 +29,7 @@ public class WSConsumer {
    
     private String result;
     // 
-    private String prefix = "http://localhost/wsProva/test/";
+    private String prefix = "http://localhost:8080/wsProva/test/";
 
     WSConsumer() {
         result = "";
@@ -43,12 +45,12 @@ public class WSConsumer {
 
         try {
             URL serverURL;
-            HttpsURLConnection service;
+            HttpURLConnection service;
             BufferedReader input;
 
             String url = prefix + URLEncoder.encode(paramater, "UTF-8");// + "=" + URLEncoder.encode(value, "UTF-8");
             serverURL = new URL(url);
-            service = (HttpsURLConnection) serverURL.openConnection();
+            service = (HttpURLConnection) serverURL.openConnection();
             // impostazione header richiesta
             service.setRequestProperty("Host", "localhost");
             service.setRequestProperty("Accept", "application/text");

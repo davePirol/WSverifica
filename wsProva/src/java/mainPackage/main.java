@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.json.*;
 
 /**
  *
@@ -55,7 +56,17 @@ public class main extends HttpServlet {
         } catch (SQLException e) {
         }
     }
-    
+    private void toJson(String param){
+        JSONObject obj = new JSONObject(param);
+        String pageName = obj.getJSONObject("pageInfo").getString("pageName");
+
+        JSONArray arr = obj.getJSONArray("posts");
+        for (int i = 0; i < arr.length(); i++)
+        {
+            String post_id = arr.getJSONObject(i).getString("post_id");
+            ......
+        }
+    }
     
 
     /**
@@ -106,7 +117,7 @@ public class main extends HttpServlet {
                 response.sendError(500, "DBMS server error!");
                 return;
             }
-            String sql="SELECT * FROM rubrica WHERE nome="+nomeDaCercare;
+            String sql="SELECT * FROM rubrica WHERE nome='"+nomeDaCercare+"'";
             
             Statement statement = phonebook.createStatement();
             ResultSet result = statement.executeQuery(sql);
@@ -132,8 +143,11 @@ public class main extends HttpServlet {
                 out.print(nomeDaCercare+": "+number);
                 out.close();
             }
+            finally{
+                response.setStatus(200);
+            }
             
-            response.setStatus(200);
+            
             
             
         }   catch (SQLException ex) {
