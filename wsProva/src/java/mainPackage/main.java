@@ -12,13 +12,15 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -56,16 +58,27 @@ public class main extends HttpServlet {
         } catch (SQLException e) {
         }
     }
-    private void toJson(String param){
-        JSONObject obj = new JSONObject(param);
-        String pageName = obj.getJSONObject("pageInfo").getString("pageName");
-
-        JSONArray arr = obj.getJSONArray("posts");
-        for (int i = 0; i < arr.length(); i++)
-        {
-            String post_id = arr.getJSONObject(i).getString("post_id");
-            ......
+    private JSONObject toJson(Vector<Utente> lista){
+        
+        
+        JSONArray array = new JSONArray();
+        
+        for(Utente i:lista){
+            JSONObject obj=new JSONObject();
+            obj.put("nome", i.getNome());
+            obj.put("cognome", i.getCognome());
+            obj.put("numero", i.getNumero());
+            
+            System.out.println(obj.toJSONString());
+            
+            array.add(i);
         }
+        
+        
+        
+        
+        return e;
+        
     }
     
 
@@ -108,7 +121,7 @@ public class main extends HttpServlet {
             throws ServletException, IOException {
         try {
             //processRequest(request, response);
-            String number;
+            String cognome,nome,numero;
             String url = request.getRequestURL().toString();
             String[] url_section = url.split("/");
             String nomeDaCercare = url_section[url_section.length - 1];
@@ -121,26 +134,33 @@ public class main extends HttpServlet {
             
             Statement statement = phonebook.createStatement();
             ResultSet result = statement.executeQuery(sql);
+            Vector<Utente> lista=new Vector<Utente>();
             
-            if (result.next()) {
-                number = result.getString(4);
-                
-                    
-            } else {
+            
+            if(!result.next()){
                 response.sendError(404, "Entry not found!");
                 result.close();
                 statement.close();
                 return;
+            }else{   
+                result.previous();
+                while (result.next()) {
+                    nome=result.getString(2);
+                    cognome=result.getString(4);
+                    numero = result.getString(3);
+                    lista.add(new Utente(nome,cognome,numero));
+                                   
+                }
             }
             result.close();
             statement.close();
             
             
-            
+            JSONArray lis=toJson(lista);
             
             
             try (PrintWriter out = response.getWriter()) {
-                out.print(nomeDaCercare+": "+number);
+                out.print(lis.toJSONString());
                 out.close();
             }
             finally{
