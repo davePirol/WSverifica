@@ -8,6 +8,7 @@ package mainPackage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,6 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -31,7 +34,7 @@ public class main extends HttpServlet {
     
     final private String driver = "com.mysql.jdbc.Driver";
     final private String dbms_url = "jdbc:mysql://localhost/";
-    final private String database = "5ai_rubrica";
+    final private String database = "preverifica";
     final private String user = "root";
     final private String password = "";
     private Connection phonebook;
@@ -62,6 +65,7 @@ public class main extends HttpServlet {
         
         
         JSONArray array = new JSONArray();
+        JSONObject e=null;
         
         for(Utente i:lista){
             JSONObject obj=new JSONObject();
@@ -156,7 +160,7 @@ public class main extends HttpServlet {
             statement.close();
             
             
-            JSONArray lis=toJson(lista);
+            JSONObject lis=toJson(lista);
             
             
             try (PrintWriter out = response.getWriter()) {
@@ -188,6 +192,47 @@ public class main extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
+    }
+    
+    @Override 
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        try {
+            String url = request.getRequestURL().toString();
+            String[] url_section = url.split("/");
+            String param = url_section[url_section.length - 1];
+            
+            
+            //string ricevuta {targa:"ty768jh", scadenzaAssicurazione:"28/04/2000", scadenzaBollo:"28/04/2000", "classeInquinameto":"2", ricercata:"0"}
+            Object obj = new JSONParser().parse(param);
+            JSONObject jo = (JSONObject) obj;
+            String targa=(String) jo.get("targa");
+            int classe=(int) jo.get("classeInquinamento");
+            Date ass=(Date) jo.get("scadenzaAssicurazione");
+            Date bollo=(Date) jo.get("scadenzaBollo");
+            boolean ricercata=(boolean) jo.get("ricercata");
+            
+            String sql="INSERT INTO `automobili` (`targa`, `scadenzaAssicurazione`, `scadenzaBollo`, `classeInquinamento`, `ricercata`) VALUES('"+targa+"','"+ass+"','"+bollo+"','"+classe+"','"+ricercata+"')";
+            Statement statement = phonebook.createStatement();
+            ResultSet result = statement.executeQuery(sql);
+            
+            try (PrintWriter out = response.getWriter()) {
+                out.print("operazione eseguita con successo");
+                out.close();
+            }
+            finally{
+                response.setStatus(200);
+            }
+            
+            
+        } catch (ParseException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    
     }
 
     /**

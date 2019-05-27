@@ -5,6 +5,7 @@
  */
 package mioconsumer;
 
+import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -24,9 +25,22 @@ public class MioConsumer {
         Scanner i=new Scanner(System.in);
         
         while(true){
-            System.out.print("inserisci il nome di cui vuoi visualizzare il numero:");
-            String nome=i.next();
-            ws.get(nome);
+            System.out.print("inserisci la targa:");
+            String targa=i.next();
+            System.out.print("inserisci la data di scadenza assicurazione:");
+            Date ass=new Date(i.next());
+            System.out.print("inserisci la data di scadenza bollo:");
+            Date bollo=new Date(i.next());
+            System.out.print("inserisci la classe di inquinamento:");
+            int classe=i.nextInt();
+            System.out.print("inserisci true se ricercata o false se non lo è:");
+            boolean ricercata=i.nextBoolean();
+            
+            String s="{targa: "+targa+", scadenzaAssicurazione: "+ass+", scadenzaBollo: "+bollo+", classeInquinamento: "+classe+", ricercata: "+ricercata+" }";
+            
+            System.out.println(s);
+            
+            ws.put(s);
             ws.printResult();
         }
         
