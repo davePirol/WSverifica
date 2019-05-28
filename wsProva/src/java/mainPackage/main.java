@@ -154,7 +154,17 @@ public class main extends HttpServlet {
                 statement.close();
             }
             else if(comando.equals("regione")){
-                String sql="SELECT count(*) FROM comuni WHERE provincia='"+parametro+"'";
+                String sql="SELECT DISTINCT provincia FROM comuni WHERE regione='"+parametro+"'";
+                Statement statement = phonebook.createStatement();
+                ResultSet result = statement.executeQuery(sql);
+                s="{  'provincie':[";                
+                while(result.next()){
+                    nome=result.getString(1);
+                    s+="'"+nome+"',";
+                }
+                s+="]'}";
+                                result.close();
+                statement.close();
                 
             }
             else{

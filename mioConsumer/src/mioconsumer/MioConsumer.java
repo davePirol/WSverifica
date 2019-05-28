@@ -5,6 +5,8 @@
  */
 package mioconsumer;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -20,21 +22,21 @@ public class MioConsumer {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
         // TODO code application logic here
         Scanner i=new Scanner(System.in);
         
         while(true){
-            String invia="";
+            String comando="";
             System.out.print("quale operazione vuoi fare?");
             int operazione=i.nextInt();
             
             switch(operazione){
                 case 1:
                     System.out.print("inserisci il nome da cercare:");
-                    String daCercare=i.next();
-                    invia="ricerca/"+daCercare;                    
-                    ws.get(invia);
+                    String comune=i.next();
+                    comando="ricerca";                    
+                    ws.get(comando,comune);
                     ws.printResult();
                     break;
                 case 2:
@@ -49,10 +51,18 @@ public class MioConsumer {
                 case 3:
                     System.out.print("inserisci la provincia da visualizzare:");
                     String provincia=i.next();
-                    invia="provincia/" +provincia;
-                    ws.get(invia);
+                    comando="provincia";
+                    ws.get(comando,provincia);
                     ws.printResult();
                     break;
+                case 4:
+                    System.out.print("inserisci la regione per visualizzare le provincie:");
+                    String regione=i.next();
+                    comando="regione";
+                    ws.get(comando,regione);
+                    ws.printResult();
+                    break;
+                    
                     
             }
             
