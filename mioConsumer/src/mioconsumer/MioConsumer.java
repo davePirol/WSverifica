@@ -25,11 +25,40 @@ public class MioConsumer {
         Scanner i=new Scanner(System.in);
         
         while(true){
-            System.out.print("inserisci il nome da cercare:");
-            String daCercare=i.next();
+            String invia="";
+            System.out.print("quale operazione vuoi fare?");
+            int operazione=i.nextInt();
             
-            ws.put(daCercare);
-            ws.printResult();
+            switch(operazione){
+                case 1:
+                    System.out.print("inserisci il nome da cercare:");
+                    String daCercare=i.next();
+                    invia="ricerca/"+daCercare;                    
+                    ws.get(invia);
+                    ws.printResult();
+                    break;
+                case 2:
+                    System.out.print("inserisci il nome da aggiornare:");
+                    String daAggiornare=i.next();
+                    System.out.print("inserisci gli abitanti:");
+                    int abitanti=i.nextInt();
+                    String s="{'comune': '"+daAggiornare+"', 'abitanti': '"+abitanti+"'}";
+                    ws.post(s);
+                    ws.printResult();
+                    break;
+                case 3:
+                    System.out.print("inserisci la provincia da visualizzare:");
+                    String provincia=i.next();
+                    invia="provincia/" +provincia;
+                    ws.get(invia);
+                    ws.printResult();
+                    break;
+                    
+            }
+            
+            
+            
+            
         }
         
         

@@ -61,29 +61,9 @@ public class main extends HttpServlet {
         } catch (SQLException e) {
         }
     }
-    private JSONObject toJson(Vector<Utente> lista){
+
         
-        
-        JSONArray array = new JSONArray();
-        JSONObject e=null;
-        
-        for(Utente i:lista){
-            JSONObject obj=new JSONObject();
-            obj.put("nome", i.getNome());
-            obj.put("cognome", i.getCognome());
-            obj.put("numero", i.getNumero());
-            
-            System.out.println(obj.toJSONString());
-            
-            array.add(i);
-        }
-        
-        
-        
-        
-        return e;
-        
-    }
+    
     
 
     /**
@@ -126,36 +106,61 @@ public class main extends HttpServlet {
         try {
             //processRequest(request, response);
             String provincia,nome,regione,abitanti;
+            String s="";
             String url = request.getRequestURL().toString();
             String[] url_section = url.split("/");
-            String nomeDaCercare = url_section[url_section.length - 1];
+            String parametro = url_section[url_section.length - 1];
+            String comando=url_section[url_section.length - 2];
             
             if (!connected) {
                 response.sendError(500, "DBMS server error!");
                 return;
             }
-            String sql="SELECT * FROM comuni WHERE comune='"+nomeDaCercare+"'";
-            
-            Statement statement = phonebook.createStatement();
-            ResultSet result = statement.executeQuery(sql);
             
             
-            
-            if(result.next()){
-                nome=result.getString(2);
-                provincia=result.getString(3);
-                regione=result.getString(4);
-                abitanti=result.getString(5);
-            }else{   
-                response.sendError(404, "Entry not found!");
+            if(comando.equals("ricerca")){
+                String sql="SELECT * FROM comuni WHERE comune='"+parametro+"'";
+                Statement statement = phonebook.createStatement();
+                ResultSet result = statement.executeQuery(sql);
+                if(result.next()){
+                    nome=result.getString(2);
+                    provincia=result.getString(3);
+                    regione=result.getString(4);
+                    abitanti=result.getString(5);
+                }else{   
+                    response.sendError(404, "Entry not found!");
+                    result.close();
+                    statement.close();
+                    return;
+                }
                 result.close();
                 statement.close();
+                s="{'comune': '"+nome+"', 'provincia': '"+provincia+"', 'regione': '"+regione+"', 'abitanti': '"+abitanti+"'}";
+            }
+            else if(comando.equals("provincia")){
+                String sql="SELECT * FROM comuni WHERE provincia='"+parametro+"'";
+                Statement statement = phonebook.createStatement();
+                ResultSet result = statement.executeQuery(sql);
+                int count=0;
+                s="{  'comuni':[";                
+                while(result.next()){
+                    nome=result.getString(2);
+                    count+=result.getInt(5);
+                    s+="'"+nome+"',";
+                }
+                s+="],'popolazione_totale': '"+count+"'}";
+                
+                result.close();
+                statement.close();
+            }
+            else if(comando.equals("regione")){
+                String sql="SELECT count(*) FROM comuni WHERE provincia='"+parametro+"'";
+                
+            }
+            else{
+                response.sendError(404, "Comando errato");
                 return;
             }
-            result.close();
-            statement.close();
-            
-            String s="{comune: '"+nome+"', provincia: '"+provincia+"', regione: '"+regione+"', abitanti: '"+abitanti+"'}";
             
             try (PrintWriter out = response.getWriter()) {
                 out.print(s);
@@ -182,7 +187,52 @@ public class main extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+                
+        try {
+            String url = request.getRequestURL().toString();
+            String[] url_section = url.split("/");
+            String param = url_section[url_section.length - 1];
+            String esito;
+            
+            Object obj = new JSONParser().parse(param);
+            JSONObject jo = (JSONObject) obj;
+            String comune=(String) jo.get("comune");
+            int abitanti=(int) jo.get("abitanti");
+            
+            String sql="UPDATE comuni SET pop_residente='"+abitanti+"' WHERE comune='"+comune+"'";
+            
+            Statement statement = phonebook.createStatement();
+            ResultSet result = statement.executeQuery(sql);
+            
+            if(result.next()){
+                esito="operazione effettuata con successo";
+            }else{   
+                response.sendError(404, "Entry not found!");
+                result.close();
+                statement.close();
+                return;
+            }
+            result.close();
+            statement.close();
+                        
+            String s="{esito:'"+esito+"'}";
+            
+            try (PrintWriter out = response.getWriter()) {
+                out.print(s);
+                out.close();
+            }
+            finally{
+                response.setStatus(200);
+            }
+            
+            
+        } catch (ParseException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
     }
     
     @Override 
@@ -193,6 +243,7 @@ public class main extends HttpServlet {
             String url = request.getRequestURL().toString();
             String[] url_section = url.split("/");
             String param = url_section[url_section.length - 1];
+            
             
             
             //string ricevuta {targa:"ty768jh", scadenzaAssicurazione:"28/04/2000", scadenzaBollo:"28/04/2000", "classeInquinameto":"2", ricercata:"0"}
