@@ -34,7 +34,7 @@ public class main extends HttpServlet {
     
     final private String driver = "com.mysql.jdbc.Driver";
     final private String dbms_url = "jdbc:mysql://localhost/";
-    final private String database = "preverifica";
+    final private String database = "verifica02";
     final private String user = "root";
     final private String password = "";
     private Connection phonebook;
@@ -125,7 +125,7 @@ public class main extends HttpServlet {
             throws ServletException, IOException {
         try {
             //processRequest(request, response);
-            String cognome,nome,numero;
+            String provincia,nome,regione,abitanti;
             String url = request.getRequestURL().toString();
             String[] url_section = url.split("/");
             String nomeDaCercare = url_section[url_section.length - 1];
@@ -134,45 +134,36 @@ public class main extends HttpServlet {
                 response.sendError(500, "DBMS server error!");
                 return;
             }
-            String sql="SELECT * FROM rubrica WHERE nome='"+nomeDaCercare+"'";
+            String sql="SELECT * FROM comuni WHERE comune='"+nomeDaCercare+"'";
             
             Statement statement = phonebook.createStatement();
             ResultSet result = statement.executeQuery(sql);
-            Vector<Utente> lista=new Vector<Utente>();
             
             
-            if(!result.next()){
+            
+            if(result.next()){
+                nome=result.getString(2);
+                provincia=result.getString(3);
+                regione=result.getString(4);
+                abitanti=result.getString(5);
+            }else{   
                 response.sendError(404, "Entry not found!");
                 result.close();
                 statement.close();
                 return;
-            }else{   
-                result.previous();
-                while (result.next()) {
-                    nome=result.getString(2);
-                    cognome=result.getString(4);
-                    numero = result.getString(3);
-                    lista.add(new Utente(nome,cognome,numero));
-                                   
-                }
             }
             result.close();
             statement.close();
             
-            
-            JSONObject lis=toJson(lista);
-            
+            String s="{comune: '"+nome+"', provincia: '"+provincia+"', regione: '"+regione+"', abitanti: '"+abitanti+"'}";
             
             try (PrintWriter out = response.getWriter()) {
-                out.print(lis.toJSONString());
+                out.print(s);
                 out.close();
             }
             finally{
                 response.setStatus(200);
             }
-            
-            
-            
             
         }   catch (SQLException ex) {
             Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);

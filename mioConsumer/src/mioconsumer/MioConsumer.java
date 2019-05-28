@@ -25,22 +25,10 @@ public class MioConsumer {
         Scanner i=new Scanner(System.in);
         
         while(true){
-            System.out.print("inserisci la targa:");
-            String targa=i.next();
-            System.out.print("inserisci la data di scadenza assicurazione:");
-            Date ass=new Date(i.next());
-            System.out.print("inserisci la data di scadenza bollo:");
-            Date bollo=new Date(i.next());
-            System.out.print("inserisci la classe di inquinamento:");
-            int classe=i.nextInt();
-            System.out.print("inserisci true se ricercata o false se non lo è:");
-            boolean ricercata=i.nextBoolean();
+            System.out.print("inserisci il nome da cercare:");
+            String daCercare=i.next();
             
-            String s="{targa: "+targa+", scadenzaAssicurazione: "+ass+", scadenzaBollo: "+bollo+", classeInquinamento: "+classe+", ricercata: "+ricercata+" }";
-            
-            System.out.println(s);
-            
-            ws.put(s);
+            ws.put(daCercare);
             ws.printResult();
         }
         
